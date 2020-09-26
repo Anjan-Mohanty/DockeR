@@ -7,3 +7,17 @@ services:
             - ./Website:/usr/app/
         ports:
             - '80:8501'
+        depends_on:
+            - mongodb
+    mongodb:
+        image: mongo:latest
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: mongo
+            MONGO_INITDB_ROOT_PASSWORD: password
+        volumes:
+            - MongoDb:/data/db
+        ports:
+            - '28017:27017'
+
+volumes:
+    MongoDb:
