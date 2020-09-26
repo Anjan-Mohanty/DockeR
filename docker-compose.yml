@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+    website:
+        build: ./Website
+        volumes:
+            - ./Website:/usr/app/
+        ports:
+            - '80:8501'

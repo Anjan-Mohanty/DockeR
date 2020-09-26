@@ -17,7 +17,7 @@ def main():
     
     if(st.button('Data Collection')):
         st.write('''
-                This feature is on its way 😅🤓
+                This feature is on its way 😅🤓 ^_^
                 ''')
                 
     if(st.button('User Management')):
