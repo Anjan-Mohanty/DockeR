@@ -9,6 +9,8 @@ services:
             - '80:8501'
         depends_on:
             - mongodb
+        networks:
+            - discover_weekly_twitter
     mongodb:
         image: mongo:latest
         environment:
@@ -18,6 +20,12 @@ services:
             - MongoDb:/data/db
         ports:
             - '28017:27017'
+        networks:
+            - discover_weekly_twitter
+
+networks:
+    discover_weekly_twitter:
+        driver: bridge
 
 volumes:
     MongoDb:

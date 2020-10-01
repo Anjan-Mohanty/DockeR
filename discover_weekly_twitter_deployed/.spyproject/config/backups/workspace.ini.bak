@@ -6,5 +6,5 @@ save_non_project_files = False
 
 [main]
 version = 0.2.0
-recent_files = ['..\\Website\\st_app.py', '..\\Website\\requirements.txt', '..\\Website\\Dockerfile', '..\\docker-compose.yml']
+recent_files = ['..\\Website\\st_app.py', '..\\Website\\micro_apps\\auth.py', '..\\Website\\micro_apps\\home.py']
 
