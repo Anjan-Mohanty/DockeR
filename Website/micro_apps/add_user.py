@@ -16,3 +16,9 @@ def micro_app():
     
     au.is_user_added()
     
+    st.write('---')
+    st.write('## Make Users')
+    st.write('All the users added manually today sofar will be made or finalized.')
+    st.write('To make them press the button below.')
+    au.make_added_users()
+    

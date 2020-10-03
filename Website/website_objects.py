@@ -1,12 +1,12 @@
 import streamlit as st
 import pymongo
 import datetime
-
+import requests
 
 
 #connecting to db
-client=pymongo.MongoClient(host='mongodb',port=27017,username='mongo',password='password')
-#client=pymongo.MongoClient('mongodb://mongodb:27017/')
+client=pymongo.MongoClient(host='mongodb',port=27017,username='mongo',password='password',maxPoolSize=200)
+
 db=client.twitter
 
 
@@ -137,6 +137,7 @@ class add_user(user_manager):
         self.activity=7
         self.created_day=None
         self.created_year=None
+        self.made_user=False
         
     def assign_date(self):
         
@@ -158,7 +159,7 @@ class add_user(user_manager):
     def get_user_status(self):
         
         label='Please select one option regarding the user'
-        options=[None,'Discover','Mute','Block']
+        options=[None,'Add']
         self.status=st.radio(label,options)
         
     def make_json(self):
@@ -170,6 +171,7 @@ class add_user(user_manager):
         user['activity']=self.activity
         user['created_year']=self.created_year
         user['created_day']=self.created_day
+        user['made_user']=self.made_user
         
         return user
     
@@ -187,12 +189,32 @@ class add_user(user_manager):
         if(st.button('Done')):
             
             if(self.screen_name==None or self.core_user==None or self.status==None or self.screen_name==''):
-                st.write('Please enter details properly')
+                st.write('Please enter details properly 🤦‍♀️')
                 st.stop()
             else:
                 
                 user=self.make_json()
                 self.push_to_users_collection(user)
-                msg=f'@{self.screen_name} is added, Is Core user : {self.core_user}, @{self.screen_name} will be {self.status}, date is {self.created_day}'
+                msg=f'@{self.screen_name} is added, Is Core user : {self.core_user}, @{self.screen_name} will be {self.status}, date is {self.created_day}, Add the users and press on Make users button to add users sofar'
                 st.success(msg)
+    
+    def make_added_users(self):
+        
+        if(st.button('Make Added Users')):
+            
+            today=datetime.date.today()
+            payload={"status":"Add","created_year":int(today.year),"created_day":int(today.strftime('%j')),"made_user":False}
+            url="http://usermaker:5000/"
+            with st.spinner('Wait making users'):
+                
+                session = requests.Session()
+                session.trust_env = False
+                
+                report= session.post(url,json=payload)
+            
+            
+                if(report.status_code==200):
+                    st.success('Made users 😉'+' '+str(report.text))
+                else:
+                    st.success('Please try again 😢')
 

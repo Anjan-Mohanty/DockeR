@@ -7,6 +7,8 @@ services:
             - ./Website:/usr/app/
         ports:
             - '80:8501'
+        links:
+            - usermaker
         depends_on:
             - mongodb
         networks:
@@ -22,6 +24,16 @@ services:
             - '28017:27017'
         networks:
             - discover_weekly_twitter
+    usermaker:
+        build: ./UserMaker
+        volumes:
+            - ./UserMaker:/app
+        ports:
+            - '5000:5000'
+        depends_on:
+            - mongodb
+        networks:
+            - discover_weekly_twitter  
 
 networks:
     discover_weekly_twitter:
