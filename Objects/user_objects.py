@@ -1,40 +1,7 @@
-import tweepy
-import pymongo
+from Objects import connections
 
 
-class mongo(object):
-    
-    def __init__(self):
-        
-        self.client=None
-        self.db=None
-    
-    def connect_to_mongo(self):
-        
-        self.client=pymongo.MongoClient(host='mongodb',port=27017,username='mongo',password='password',maxPoolSize=200,connect=False)
 
-        self.db=self.client.twitter
-
-
-def get_auth(number):
-    
-    mongo_app=mongo()
-    mongo_app.connect_to_mongo()
-    
-    auth=[]
-    for each in mongo_app.db.auth.find({}):
-        auth.append(each)
-    
-    return(auth[number])
-
-def connect_to_twitter(auth):
-    
-    auth_details=tweepy.OAuthHandler(auth['api_key'],auth['api_secrete_key'])
-    auth_details.set_access_token(auth['access_token'],auth['access_token_secret'])
-
-    api=tweepy.API(auth_details,wait_on_rate_limit=True,wait_on_rate_limit_notify=True)
-    
-    return api
 
 class User(object):
     
@@ -67,7 +34,7 @@ class User(object):
         self.day_added=user_json['created_day']
         self.year_added=user_json['created_year']
         
-        mongo_app=mongo()
+        mongo_app=connections.mongo()
         mongo_app.connect_to_mongo()
         
         mongo_app.db.users.update({'_id':user_json['_id']},{'$set':{'made_user':True}})
@@ -100,15 +67,18 @@ class user_set(object):
     
     def make_new_users(self,query):
         
-        mongo_app=mongo()
+        mongo_app=connections.mongo()
         mongo_app.connect_to_mongo()
         
         users=[]
         for member in mongo_app.db.users.find({'$and':[{'status':query['status']},{'created_year':query['created_year']},{'created_day':query['created_day']},{'made_user':query['made_user']}]}):
             users.append(member)
         
-        auth=get_auth(0)
-        api=connect_to_twitter(auth)
+        keys=connections.twitter_api_keys()
+        keys.get_existing_keys(no_of_keys=1)
+        
+        api=keys.keys[0].connect_to_twitter()
+        
         
         for member in users:
             
@@ -119,7 +89,7 @@ class user_set(object):
     
     def push_to_community(self):
 
-        mongo_app=mongo()
+        mongo_app=connections.mongo()
         mongo_app.connect_to_mongo()        
         
         

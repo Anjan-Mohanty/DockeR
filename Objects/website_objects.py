@@ -1,13 +1,7 @@
 import streamlit as st
-import pymongo
 import datetime
 import requests
-
-
-#connecting to db
-client=pymongo.MongoClient(host='mongodb',port=27017,username='mongo',password='password',maxPoolSize=200)
-
-db=client.twitter
+from Objects import connections
 
 
 
@@ -23,13 +17,13 @@ class website(object):
 
 #main objects
 ###############################################################################
-class data_collection(website):
+class data_collection(object):
     pass
 
-class user_manager(website):
+class user_manager(object):
     pass
 
-class get_insights(website):
+class get_insights(object):
     pass
 ###############################################################################
 
@@ -41,47 +35,36 @@ class get_insights(website):
 ###############################################################################
 
 #auth_keys object--------------------------------------------------------------
-class auth_keys(data_collection):
+class auth_keys(object):
     
     def __init__(self):
         
-        self.existing_keys=[]
+        self.key=connections.twitter_api_key()
         
-        self.api_key=None
-        self.api_secrete_key=None
-        self.access_token=None
-        self.access_token_secret=None
-    
-    def make_json(self):
+    def get_keys(self):
         
-        key={}
-        key['api_key']=self.api_key
-        key['api_secrete_key']=self.api_secrete_key
-        key['access_token']=self.access_token
-        key['access_token_secret']=self.access_token_secret
-        
-        return key
-    
-    def push_to_auth_collection(self,key):
-        try:
-            db.auth.insert(key)
-        except Exception as e:
-            print(e)
-    
+        self.key.api_key=str(st.text_input('Please Enter API key'))
+        self.key.api_secrete_key=str(st.text_input('Please Enter API secret key'))
+        self.key.access_token=str(st.text_input('Please Enter Access token'))
+        self.key.access_token_secret=str(st.text_input('Please Enter Access token secret'))        
+
     def is_correct(self):
         
-        if(self.api_key==None or self.api_key=='' or self.api_secrete_key==None or self.api_secrete_key=='' or self.access_token==None or self.access_token=='' or self.access_token_secret==None or self.access_token_secret==''):
+        if(self.key.api_key==None or self.key.api_key=='' or self.key.api_secrete_key==None or self.key.api_secrete_key=='' or self.key.access_token==None or self.key.access_token=='' or self.key.access_token_secret==None or self.key.access_token_secret==''):
             return False
         else:
             return True
-    
+
     def is_repeated(self):
         
         count=0
         
-        for key in self.existing_keys:
+        existing_keys=connections.twitter_api_keys()
+        existing_keys.get_existing_keys()
+        
+        for key in existing_keys.keys:
             
-            if(self.api_key==key.api_key or self.api_secrete_key==key.api_secrete_key or self.access_token==key.access_token or self.access_token_secret==key.access_token_secret):
+            if(self.key.api_key==key.api_key or self.key.api_secrete_key==key.api_secrete_key or self.key.access_token==key.access_token or self.key.access_token_secret==key.access_token_secret):
                 count=1
                 break
         
@@ -89,24 +72,7 @@ class auth_keys(data_collection):
             return False
         else:
             return True
-        
-        
-    def get_keys(self):
-        
-        #label='Please Enter {key} :'
-        self.api_key=str(st.text_input('Please Enter API key'))
-        self.api_secrete_key=str(st.text_input('Please Enter API secret key'))
-        self.access_token=str(st.text_input('Please Enter Access token'))
-        self.access_token_secret=str(st.text_input('Please Enter Access token secret'))
-    
-    def get_existing_keys(self):
-        
-        try:
-            for key in db.auth({}):
-                self.existing_keys.append(key)
-        except Exception as e:
-            print(e)
-    
+
     def is_auth_added(self):
         
         if(st.button('Add API Keys')):
@@ -119,15 +85,19 @@ class auth_keys(data_collection):
                 st.stop()
             else:
                 
-                key=self.make_json()
-                self.push_to_auth_collection(key)
+                key_json=self.key.make_json()
+                
+                mongo_app=connections.mongo()
+                mongo_app.connect_to_mongo()
+                
+                mongo_app.db.auth.insert(key_json)
                 st.write('**To Delete key, Use Mongo Compass.**')
                 msg='The Twitter API Key is Added, Now you can collect more Data efficiently'
                 st.success(msg)
                 
 
 #add_user object---------------------------------------------------------------
-class add_user(user_manager):
+class add_user(object):
     
     def __init__(self):
         
@@ -138,26 +108,20 @@ class add_user(user_manager):
         self.created_day=None
         self.created_year=None
         self.made_user=False
-        
-    def assign_date(self):
+            
+    def get_details(self):
         
         today=datetime.date.today()
         self.created_day=int(today.strftime('%j'))
         self.created_year=int(today.year)
-    
-    def get_screen_name(self):
         
         label='Enter the Screen name of the user @'
         self.screen_name=str(st.text_input(label))
-    
-    def is_core_user(self):
-        
+
         label=f'Is @{self.screen_name} a Core User ?'
         options=[None,'Yes','No']
         self.core_user=st.radio(label,options)
-    
-    def get_user_status(self):
-        
+
         label='Please select one option regarding the user'
         options=[None,'Add']
         self.status=st.radio(label,options)
@@ -175,26 +139,25 @@ class add_user(user_manager):
         
         return user
     
-    def push_to_users_collection(self,user):
-        
-        #try:
-        #    db.users.remove({})
-        #except Exception as e:
-        #   print(e)
-        
-        db.users.insert(user)
 
     def is_user_added(self):
         
         if(st.button('Done')):
             
             if(self.screen_name==None or self.core_user==None or self.status==None or self.screen_name==''):
-                st.write('Please enter details properly 🤦‍♀️')
+                st.write('Please enter details properly 🎅👵')
                 st.stop()
             else:
                 
                 user=self.make_json()
-                self.push_to_users_collection(user)
+                
+                mongo_app=connections.mongo()
+                mongo_app.connect_to_mongo()
+                
+                mongo_app.db.users.insert(user)
+                #self.push_to_users_collection(user)
+                
+                
                 msg=f'@{self.screen_name} is added, Is Core user : {self.core_user}, @{self.screen_name} will be {self.status}, date is {self.created_day}, Add the users and press on Make users button to add users sofar'
                 st.success(msg)
     

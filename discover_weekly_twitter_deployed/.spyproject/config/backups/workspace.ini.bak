@@ -6,5 +6,5 @@ save_non_project_files = False
 
 [main]
 version = 0.2.0
-recent_files = ['..\\UserMaker\\Dockerfile', '..\\UserMaker\\requirements.txt', '..\\UserMaker\\user_maker.py', '..\\UserMaker\\user_objects.py', '..\\docker-compose.yml', '..\\Website\\website_objects.py', '..\\Website\\requirements.txt']
+recent_files = ['..\\docker-compose.yml', '..\\Objects\\connections.py', '..\\Objects\\user_objects.py', '..\\Objects\\website_objects.py']
 

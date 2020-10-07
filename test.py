@@ -1,7 +1,14 @@
-import requests
+from flask import Flask
+import time
 
-url='http://localhost:5000/'
-payload={'hi':1}
-response=requests.post(url,json=payload)
+app=Flask(__name__)
 
-print(response.text)
+
+@app.route('/')
+def index():
+    
+    return('-_-'+" '_'"+" ^<>^")
+
+
+if __name__=='__main__':
+    app.run(debug=True)
