@@ -17,8 +17,82 @@ class website(object):
 
 #main objects
 ###############################################################################
+
+
+#data_collection object--------------------------------------------------------
 class data_collection(object):
-    pass
+    
+    def __init__(self):
+        
+        self.query=None
+    
+    def status(self):
+        
+        mongo_app=connections.mongo()
+        mongo_app.connect_to_mongo()
+        
+        label='When do you want to schedule this task every day ?(Please mention in UTC timezone)'
+        hour=st.slider(label=label,min_value=0,max_value=23,value=8,step=1)
+        
+        if st.button('Done'):
+            
+            reports=[]
+            for report in mongo_app.db.reports.find({'report':'data_collection'}):
+                reports.append(report)
+            
+            if len(reports)==0:
+                
+                today=datetime.date.today()
+                todaydt=datetime.datetime(today.year,today.month,today.day,0,0,0)
+                lastDate=todaydt-datetime.timedelta(days=7)
+                
+                query={'report':'data_collection','scheduled_hour':hour,'last_day':int(lastDate.strftime('%j')),'year':lastDate.year,'tweets_status':'collected','user_friends_status':'collected','tweets_user':'','friends_user':{'screen_name':'','user_no':0,'type':'old'}}
+                
+                mongo_app.db.reports.insert(query)
+            
+            else:
+                
+                mongo_app.db.reports.update({'report':'data_collection'},{'$set':{'scheduled_hour':hour}})
+            
+            st.success(f'Changed to {hour} hour')
+
+        try:
+            reports=[]
+            for report in mongo_app.db.reports.find({'report':'data_collection'}):
+                reports.append(report)
+            
+            self.query=reports[0]
+        
+            st.write(f"Scheduled Hour : {self.query['scheduled_hour']}")
+            st.write(f"Today (ie; Day of this year) : {datetime.datetime.today().strftime('%j')}")
+            st.write(f"Last day collected : {self.query['last_day']}")
+            st.write(f"Tweets Status : {self.query['tweets_status']}")
+            st.write(f"Collecting tweets of user : {self.query['tweets_user']}")
+            st.write(f"User Friends Status : {self.query['user_friends_status']}")
+            st.write(f"Collecting friends of user : {self.query['friends_user']['screen_name']}")
+
+        except Exception as e:
+            pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class user_manager(object):
     pass

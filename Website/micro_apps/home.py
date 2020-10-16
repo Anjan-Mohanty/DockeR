@@ -14,6 +14,7 @@ def micro_app():
     st.write('## Data Collection')
     st.write('To Get **Status** on data go ahed!')
     
+    st.write('- **Data Collector**')
     st.write('- **Twitter API Auth Keys**')
     st.write('---')
     

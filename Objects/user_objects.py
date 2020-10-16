@@ -15,6 +15,18 @@ class User(object):
         self.cluster_number=0
         self.friends_id=[]
         self.edges=[]
+        
+    def make_user(self,user):
+        
+        self.user=user['user']
+        self.core_user=user['core_user']
+        self.activity=user['activity']
+        self.day_added=user['day_added']
+        self.year_added=user['year_added']
+        self.cluster_number=user['cluster_number']
+        self.friends_id=user['friends_id']
+        self.edges=user['edges']
+        
     
     def make_new_user(self,user_json,api):
         
@@ -64,6 +76,7 @@ class user_set(object):
     def __init__(self):
         
         self.users=[]
+        self.user_ids=[]
     
     def make_new_users(self,query):
         
@@ -98,6 +111,21 @@ class user_set(object):
             user_json=user.make_user_json()
             
             mongo_app.db.community.insert(user_json)
+    
+    def get_users(self,query):
+        
+        mongo_app=connections.mongo()
+        mongo_app.connect_to_mongo()
+        
+        for user in mongo_app.db.community.find(query):
+            
+            existing_user=User()
+            existing_user.make_user(user)
+            
+            self.users.append(existing_user)
+            self.user_ids.append(user['_id'])
+            
+        
         
         
 

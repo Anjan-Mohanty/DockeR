@@ -14,25 +14,6 @@ class mongo(object):
 
         self.db=self.client.twitter
         
-def get_auth(number):
-    
-    mongo_app=mongo()
-    mongo_app.connect_to_mongo()
-    
-    auth=[]
-    for each in mongo_app.db.auth.find({}):
-        auth.append(each)
-    
-    return(auth[number])
-
-def connect_to_twitter(auth):
-    
-    auth_details=tweepy.OAuthHandler(auth['api_key'],auth['api_secrete_key'])
-    auth_details.set_access_token(auth['access_token'],auth['access_token_secret'])
-
-    api=tweepy.API(auth_details,wait_on_rate_limit=True,wait_on_rate_limit_notify=True)
-    
-    return api
 
 class twitter_api_key(object):
     
@@ -66,6 +47,15 @@ class twitter_api_key(object):
         auth_details.set_access_token(self.access_token,self.access_token_secret)
 
         api=tweepy.API(auth_details,wait_on_rate_limit=True,wait_on_rate_limit_notify=True)
+    
+        return api
+    
+    def connect_to_twitter_no_wait(self):
+        
+        auth_details=tweepy.OAuthHandler(self.api_key,self.api_secrete_key)
+        auth_details.set_access_token(self.access_token,self.access_token_secret)
+
+        api=tweepy.API(auth_details,wait_on_rate_limit_notify=True)
     
         return api
 

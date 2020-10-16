@@ -1,5 +1,5 @@
 from app import app
-from flask import Flask,request
+from flask import request
 from Objects import user_objects
 
 @app.route('/',methods=['POST','GET'])

@@ -6,5 +6,5 @@ save_non_project_files = False
 
 [main]
 version = 0.2.0
-recent_files = ['..\\docker-compose.yml', '..\\Objects\\connections.py', '..\\Objects\\user_objects.py', '..\\Objects\\website_objects.py']
+recent_files = ['..\\DataCollection\\app\\tasks.py', '..\\Website\\st_app.py', '..\\Website\\website.py', '..\\Website\\micro_apps\\home.py', '..\\Website\\micro_apps\\data_collector.py']
 

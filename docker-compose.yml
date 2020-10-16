@@ -1,6 +1,10 @@
 version: '3'
 
+
+
 services:
+
+
     website:
         build: ./Website
         volumes:
@@ -14,6 +18,8 @@ services:
             - mongodb
         networks:
             - discover_weekly_twitter
+            
+            
     mongodb:
         image: mongo:latest
         environment:
@@ -25,6 +31,8 @@ services:
             - '28017:27017'
         networks:
             - discover_weekly_twitter
+            
+            
     usermaker:
         build: ./UserMaker
         volumes:
@@ -35,8 +43,56 @@ services:
         depends_on:
             - mongodb
         networks:
-            - discover_weekly_twitter  
-
+            - discover_weekly_twitter
+            
+            
+    datacollection: &datacollection
+        build: ./DataCollection
+        volumes:
+            - ./DataCollection:/app
+            - ./Objects:/app/Objects
+        ports:
+            - '5010:5010'
+        depends_on:
+            - celeryworker
+            - rabbitmq
+        networks:
+            - discover_weekly_twitter
+            
+            
+    rabbitmq:
+        image: rabbitmq:3.8.9
+        environment:
+            - RABBITMQ_DEFAULT_USER=myuser
+            - RABBITMQ_DEFAULT_PASS=mypassword
+        ports:
+            - '5672:5672'
+        networks:
+            - discover_weekly_twitter
+            
+    
+    celeryworker:
+        <<: *datacollection
+        command: celery -A app.celery worker --concurrency=5 --loglevel=INFO
+        ports: []
+        depends_on:
+            - rabbitmq
+        deploy:
+            mode: replicated
+            replicas: 2
+            
+            
+    scheduler:
+        build: ./Scheduler
+        volumes:
+            - ./Scheduler:/app
+            - ./Objects:/app/Objects
+        ports:
+            - '5020:5020'
+        networks:
+            - discover_weekly_twitter
+            
+        
 networks:
     discover_weekly_twitter:
         driver: bridge

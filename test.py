@@ -1,14 +1,24 @@
-from flask import Flask
-import time
+import requests
 
-app=Flask(__name__)
+payload={}
+url="http://localhost:5010/tweets"
+                
+session = requests.Session()
+session.trust_env = False
 
-
-@app.route('/')
-def index():
+for i in range(10):               
+    report= session.post(url,json=payload)
     
-    return('-_-'+" '_'"+" ^<>^")
 
+a=1
+b=0
 
-if __name__=='__main__':
-    app.run(debug=True)
+try:
+    
+    #d=a[0]
+    c=a/b
+    print(c)
+except TypeError:
+    print('not possible')
+except:
+    print('something happend')
