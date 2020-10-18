@@ -24,6 +24,7 @@ def micro_app():
     st.write('To **Discover, Add** and **Delete Users** go ahed!')
     
     st.write('- **Add User**')
+    st.write('- **Discover Users**')
     st.write('---')
 
     ############################################

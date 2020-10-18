@@ -83,6 +83,7 @@ class user_set(object):
         mongo_app=connections.mongo()
         mongo_app.connect_to_mongo()
         
+        mongo_app.db.users.remove({'$and':[{'created_year':{'$ne':query['created_year']}},{'created_day':{'$ne':query['created_day']}}]})
         users=[]
         for member in mongo_app.db.users.find({'$and':[{'status':query['status']},{'created_year':query['created_year']},{'created_day':query['created_day']},{'made_user':query['made_user']}]}):
             users.append(member)
@@ -110,7 +111,8 @@ class user_set(object):
             
             user_json=user.make_user_json()
             
-            mongo_app.db.community.insert(user_json)
+            if not mongo_app.db.community.find({'user':user_json['user']}).count()>0:
+                mongo_app.db.community.insert(user_json)
     
     def get_users(self,query):
         

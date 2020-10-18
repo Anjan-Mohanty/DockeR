@@ -23,14 +23,14 @@ def main():
         
         if len(reports)!=0:
             
-            if((reports[0]['last_day']!=day) and (reports[0]['scheduled_hour']<hour)):
+            if((reports[0]['last_day']['scheduler']!=day) and (reports[0]['scheduled_hour']<hour)):
                 
                 session = requests.Session()
                 session.trust_env = False
                 
                 user_query={}
                 
-                lastDate=datetime.datetime(reports[0]['year'], 1, 1) + datetime.timedelta(reports[0]['last_day'] - 1)
+                lastDate=datetime.datetime(reports[0]['year']['scheduler'], 1, 1) + datetime.timedelta(reports[0]['last_day']['scheduler'] - 1)
                 days=datetime.datetime.now()-lastDate
                 
                 if days.days+2>=7:
@@ -38,7 +38,7 @@ def main():
                 else:
                     days=days.days+2
                 
-                tweets_payload={'days':days,'user_payload':user_query}
+                tweets_payload={'days':days,'user_payload':user_query,'source':'scheduler'}
                 url="http://datacollection:5010/tweets"
                 
                 report= session.post(url,json=tweets_payload)
@@ -46,7 +46,7 @@ def main():
                 time.sleep(5)
                 
                 user_friends_query={}
-                user_payload={'type':'old','user_friends_payload':user_friends_query}
+                user_payload={'type':'old','user_friends_payload':user_friends_query,'source':'scheduler'}
                 url="http://datacollection:5010/user_friends"
                 
                 report= session.post(url,json=user_payload)
@@ -55,14 +55,14 @@ def main():
                 
                 try:
                     
-                    if((reports[0]['last_day']==day) and (reports[0]['tweets_status']=='collecting') and (reports[0]['tweets_user']==old_user_tweets)):
+                    if((reports[0]['last_day']['scheduler']==day) and (reports[0]['tweets_status']['scheduler']=='collecting') and (reports[0]['tweets_user']['scheduler']==old_user_tweets)):
                         
 
                         url="http://datacollection:5010/tweets"
                 
                         report= session.post(url,json=tweets_payload)
                 
-                    if((reports[0]['last_day']==day) and (reports[0]['user_friends_status']=='collecting') and (reports[0]['friends_user']['screen_name']==old_user_friends)):
+                    if((reports[0]['last_day']['scheduler']==day) and (reports[0]['user_friends_status']['scheduler']=='collecting') and (reports[0]['friends_user']['screen_name']==old_user_friends)):
                         
                         
                         url="http://datacollection:5010/user_friends"
@@ -72,7 +72,7 @@ def main():
                 except Exception as e:
                     pass
                 
-            old_user_tweets=reports[0]['tweets_user']
+            old_user_tweets=reports[0]['tweets_user']['scheduler']
             old_user_friends=reports[0]['friends_user']['screen_name']
             iteration+=1
                 

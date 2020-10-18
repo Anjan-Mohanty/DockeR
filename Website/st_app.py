@@ -1,6 +1,6 @@
 import streamlit as st
 import website as wb
-from micro_apps import home,auth,add_user,data_collector
+from micro_apps import home,auth,add_user,data_collector,discover_users
 
 def main():
     
@@ -10,6 +10,7 @@ def main():
     website.add_micro_app('Data Collector',data_collector.micro_app)
     website.add_micro_app('Twitter API Auth-Keys',auth.micro_app)
     website.add_micro_app('Add User',add_user.micro_app)
+    website.add_micro_app('Discover Users',discover_users.micro_app)
     
     website.run()
                 

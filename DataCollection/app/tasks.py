@@ -21,14 +21,16 @@ def tweets_celery_collector(self,query):
     
     api=api_keys.keys[0].connect_to_twitter()
     
-    
-    #set status in db
-    mongo_app.db.reports.update({'report':'data_collection'},{'$set':{'last_day':int(today.strftime('%j')),'tweets_status':'collecting'}})
-    
     #setting time period
     todaydt=datetime.datetime(today.year,today.month,today.day,0,0,0)
     startDate=todaydt-datetime.timedelta(days=query['days'])
     endDate=todaydt-datetime.timedelta(days=2)
+    
+    #set status in db
+    update_query={'$set':{f"last_day.{query['source']}":int(today.strftime('%j')),f"tweets_status.{query['source']}":'collecting',f"duration.{query['source']}":f"{startDate} - {endDate}"}}
+    mongo_app.db.reports.update({'report':'data_collection'},update_query)
+    
+
     
     #getting users
     
@@ -42,7 +44,7 @@ def tweets_celery_collector(self,query):
     tweets=[]
     i=0
     j=1
-
+    count=0
     for user in users.users:
     
         i=i+1
@@ -82,7 +84,7 @@ def tweets_celery_collector(self,query):
         j=j+1
         
         #updating status in reports
-        mongo_app.db.reports.update({'report':'data_collection'},{'$set':{'tweets_user':user.user['screen_name']}})
+        mongo_app.db.reports.update({'report':'data_collection'},{'$set':{f"tweets_user.{query['source']}":user.user['screen_name']}})
 
 
     #pulling json part of tweets status collected
@@ -116,12 +118,14 @@ def tweets_celery_collector(self,query):
         if '_id' in tweet:
             tweet.pop('_id')
             print(i)
-    
-        mongo_app.db.tweets.insert_one(tweet)
+        
+        if not mongo_app.db.tweets.find({'id':tweet['id']}).count()>0:
+            mongo_app.db.tweets.insert_one(tweet)
+            count+=1
         i=i+1
     
     #set status in db
-    mongo_app.db.reports.update({'report':'data_collection'},{'$set':{'tweets_status':'collected'}})
+    mongo_app.db.reports.update({'report':'data_collection'},{'$set':{f"tweets_status.{query['source']}":'collected',f"quantity.{query['source']}":count}})
 
 
 
@@ -145,7 +149,8 @@ def user_friends_celery_collector(self,query):
     api_keys.get_existing_keys()
     
     #set status in db
-    mongo_app.db.reports.update({'report':'data_collection'},{'$set':{'last_day':int(today.strftime('%j')),'user_friends_status':'collecting'}})
+    update_query={'$set':{f"last_day.{query['source']}":int(today.strftime('%j')),f"user_friends_status.{query['source']}":'collecting'}}
+    mongo_app.db.reports.update({'report':'data_collection'},update_query)
     
     #getting users
     
@@ -209,7 +214,7 @@ def user_friends_celery_collector(self,query):
                 user_no+=1
                 
         #set status in db
-        mongo_app.db.reports.update({'report':'data_collection'},{'$set':{'user_friends_status':'collected'}})
+        mongo_app.db.reports.update({'report':'data_collection'},{'$set':{f"user_friends_status.{query['source']}":'collected'}})
         
             
     
