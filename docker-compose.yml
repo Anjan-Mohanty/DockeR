@@ -67,9 +67,20 @@ services:
             - RABBITMQ_DEFAULT_PASS=mypassword
         ports:
             - '5672:5672'
+            - '15672:15672'
         networks:
             - discover_weekly_twitter
             
+    rabbitmqpreprocess:
+        image: rabbitmq:3.8.9
+        ports:
+            - '5673:5673'
+            - '15673:15673'
+        volumes:
+            - ./RabbitMQ/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+        networks:
+            - discover_weekly_twitter
+
     
     celeryworker:
         <<: *datacollection
@@ -112,6 +123,25 @@ services:
         networks:
             - discover_weekly_twitter
             
+    preprocess: &preprocess
+        build: ./PreProcess
+        volumes:
+            - ./PreProcess:/app
+            - ./Objects:/app/Objects
+        ports:
+            - '5100:5100'
+        networks:
+            - discover_weekly_twitter
+    
+    processworker:
+        <<: *preprocess
+        command: celery -A app.celery worker --concurrency=5 --loglevel=INFO
+        ports: []
+        depends_on:
+            - rabbitmq
+        deploy:
+            mode: replicated
+            replicas: 2    
         
 networks:
     discover_weekly_twitter:

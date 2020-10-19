@@ -30,7 +30,11 @@ def micro_app():
     ############################################
     st.write('## Get Insights')
     st.write('To **Discover new opinions** go ahed!')
-    st.write('---')    
+    
+    st.write('- **Pre Processing**')
+    st.write('---')
+    
+    
     
     
     

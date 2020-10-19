@@ -57,7 +57,7 @@ class Tweet(object):
         
         #if only tweet but has mentions
         for member in self.tweet['entities']['user_mentions']:
-                directed.append(member['screen_name'])
+            directed.append(member['screen_name'])
         
         #now removing repeated
         directed=list(set(directed))

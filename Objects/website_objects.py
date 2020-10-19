@@ -453,7 +453,7 @@ class discover_users(object):
             
             
                 if(report.status_code==200):
-                    st.success('Muted Users')
+                    st.success('Muted Users 😶')
                 else:
                     st.success('Please try again 😢')
             
@@ -479,3 +479,122 @@ class discover_users(object):
                 
                 report= session.post(url,json=user_payload)
             
+
+
+
+#preprocess object-------------------------------------------------------------
+class preprocess(object):
+    
+    def __init__(self):
+        
+        self.tweet_weight=None
+        self.tweet_mention_weight=None
+        self.retweet_weight=None
+        self.quote_weight=None
+        self.reply_weight=None
+        
+    def get_details(self):
+        
+        st.write('Please **adjust** the below **values** to get **best Clusters**')
+        
+        label='Weight for plane Tweet'
+        self.tweet_weight=st.slider(label,min_value=0.000,max_value=10000.000,value=0.010,step=0.001)
+        
+        label='Weight for Tweet with mention'
+        self.tweet_mention_weight=st.slider(label,min_value=0.000,max_value=10000.000,value=0.100,step=0.001)
+        
+        label='Weight for retweet'
+        self.retweet_weight=st.slider(label,min_value=0.000,max_value=10000.000,value=1.000,step=0.001)
+        
+        label='Weight for Quote'
+        self.quote_weight=st.slider(label,min_value=0.000,max_value=10000.000,value=10.000,step=0.001)
+        
+        label='Weight for reply'
+        self.reply_weight=st.slider(label,min_value=0.000,max_value=10000.000,value=100.000,step=0.001)
+
+        st.write('During testing the default weights were giving good results,')
+        st.write('If you do not get good Clusters please adjust above weights.')
+        
+        mongo_app=connections.mongo()
+        mongo_app.connect_to_mongo()
+        
+        if st.button('Done'):
+            
+            reports=[]
+            for i in mongo_app.db.reports.find({'report':'preprocess'}):
+                reports.append(i)
+            
+            if len(reports)==0:
+                
+                mongo_app.db.reports.insert({'report':'preprocess','tweet_weight':self.tweet_weight,'tweet_mention_weight':self.tweet_mention_weight,'retweet_weight':self.retweet_weight,'quote_weight':self.quote_weight,'reply_weight':self.reply_weight})
+                
+            else:
+                mongo_app.db.reports.update({'report':'preprocess'},{'$set':{'tweet_weight':self.tweet_weight,'tweet_mention_weight':self.tweet_mention_weight,'retweet_weight':self.retweet_weight,'quote_weight':self.quote_weight,'reply_weight':self.reply_weight}})
+        
+        try:
+            reports=[]
+            for i in mongo_app.db.reports.find({'report':'preprocess'}):
+                reports.append(i)
+                
+            st.write('- '+f"{reports[0]['tweet_weight']}, this is the amount of bond strength gained by the followers of, if the user tweets a simple tweet.")
+            st.write('- '+f"{reports[0]['tweet_mention_weight']}, this is the amount of bond strength gained by a twitter user, if a user mentions the twitter user in his tweet.")
+            st.write('- '+f"{reports[0]['retweet_weight']}, this is the amount of bond strength gained by a twitter user, if a user retweets a tweet of a twitter user.")
+            st.write('- '+f"{reports[0]['quote_weight']}, this is the amount of bond strength gained by a twitter user, if a user quotes a tweet of a twitter user.")
+            st.write('- '+f"{reports[0]['reply_weight']}, this is the amount of bond strength gained by a twitter user, if a user replies to a tweet of a twitter user.")
+        except:
+            pass
+        
+    def process_data(self):
+        
+        st.write('**The Pre Process step below is done using parallel processing**')
+        st.write('**PLEASE DO THIS STEP ONLY AFTER COLLECTING ALL THE TWEETS**')
+        
+        if st.button('Pre Process'):
+            
+            with st.spinner('Pre Processing...'):
+                session = requests.Session()
+                session.trust_env = False
+            
+                url="http://preprocess:5100/"
+                payload={}
+            
+                report= session.post(url,json=payload)
+                
+                if(report.status_code==200):
+                    st.success('Processed Users 😃')
+                else:
+                    st.success('Please try again 😢')
+            
+    def show_status(self):
+        
+        pass
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
