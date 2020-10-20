@@ -4,6 +4,7 @@ import requests
 from Objects import connections
 import pandas as pd
 import time
+from Objects import user_objects
 
 #masterobject
 ###############################################################################
@@ -16,7 +17,7 @@ class website(object):
 
 
 #main objects
-###############################################################################
+##############################################################################
 
 
 #data_collection object--------------------------------------------------------
@@ -568,7 +569,79 @@ class preprocess(object):
     def show_status(self):
         
         pass
+    
+    
+class cluster_community(object):
+    
+    def __init__(self):
+        
+        self.cluster_number=None
+        self.no_clusters=2
+    
+    def do_clustering(self):
+        
+        st.write('**Please do Pre Process step before this step, or else you get error results**')
+        st.write('If you want to **cluster** please press the **button** below.')
+        
+        if st.button('Cluster Community'):
             
+            with st.spinner('Clustring...'):
+                
+                session = requests.Session()
+                session.trust_env = False
+            
+                url="http://clustercommunity:5300/"
+                payload={}
+            
+                report= session.post(url,json=payload)
+                
+                if(report.status_code==200):
+                    st.success('Clustered Community 😃')
+                else:
+                    st.success('Please try again 😢')
+    
+    
+    def show_report(self):
+        
+        mongo_app=connections.mongo()
+        mongo_app.connect_to_mongo()
+        
+        reports=[]
+        for report in mongo_app.db.reports.find({'report':'cluster_community'}):
+            reports.append(report)
+        
+        if len(reports)!=0:
+            
+            st.write(f"The present no of Users in our community are : {reports[0]['no_users']}")
+            st.write(f"The number of **Clusters** detected are : {reports[0]['no_clusters']}")
+            
+            self.no_clusters=reports[0]['no_clusters']
+            
+    def show_clusters(self):
+        
+        label='Which Cluster would you like to see'
+        self.cluster_number=st.slider(label,min_value=0,max_value=self.no_clusters-1,value=0,step=1)
+        
+        if st.button('Show Cluster'):
+            
+            users_cluster=user_objects.user_set()
+            users_cluster.get_users({'cluster_number':self.cluster_number})
+            
+            cluster=[]
+            
+            for user in users_cluster.users:
+                
+                temp={}
+                temp['User']=user.user['name']
+                temp['Screen name']=user.user['screen_name']
+                temp['Activity']=user.activity
+                
+                cluster.append(temp)
+            
+            
+            df=pd.DataFrame(cluster)
+            
+            st.dataframe(df)
             
 
 

@@ -13,7 +13,7 @@ def index():
     
     try:
         
-        mongo_app.db.mute.update({'status':'Mute'},{'$inc':{'activity':-1}})
+        mongo_app.db.mute.update_many({'status':'Mute'},{'$inc':{'activity':-1}})
         
         mongo_app.db.mute.remove({'$and':[{'status':'Mute'},{'activity':0}]})
         

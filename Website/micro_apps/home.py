@@ -32,6 +32,7 @@ def micro_app():
     st.write('To **Discover new opinions** go ahed!')
     
     st.write('- **Pre Processing**')
+    st.write('- **Cluster Community**')
     st.write('---')
     
     

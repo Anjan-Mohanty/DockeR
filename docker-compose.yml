@@ -141,8 +141,18 @@ services:
             - rabbitmq
         deploy:
             mode: replicated
-            replicas: 2    
-        
+            replicas: 2
+    
+    clustercommunity:
+        build: ./ClusterCommunity
+        volumes:
+            - ./ClusterCommunity:/app
+            - ./Objects:/app/Objects
+        ports:
+            - '5300:5300'
+        networks:
+            - discover_weekly_twitter
+                
 networks:
     discover_weekly_twitter:
         driver: bridge
