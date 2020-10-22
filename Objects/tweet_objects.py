@@ -95,3 +95,9 @@ class tweet_set(object):
         for each_tweet in self.tweets:
             
             each_tweet.preprocess()
+    
+    def preprocess_tweets_range(self,start=None,end=None):
+        
+        for each_tweet in self.tweets[start:end]:
+            
+            each_tweet.preprocess()

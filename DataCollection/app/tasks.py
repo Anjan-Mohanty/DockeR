@@ -50,8 +50,9 @@ def tweets_celery_collector(self,query):
         i=i+1
         try:
             tmpTweets = api.user_timeline(user.user['screen_name'])
-        except tweepy.TweepError:
+        except tweepy.TweepError as e:
             print('------ PRIVATE -----',i,user.user['screen_name'],j)
+            print(e)
     
         print(i,user.user['screen_name'],j)
         for tweet in tmpTweets:

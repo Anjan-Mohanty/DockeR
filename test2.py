@@ -4,6 +4,12 @@ import datetime
 client=pymongo.MongoClient()
 db=client.twitter
 
+tweet=db.tweets.find({'user.screen_name':'MKBHD'})
+
+for i in db.tweets.find({'user.screen_name':'MKBHD'}):
+    tweet=i
+    break
+
 a=[{'name':'1','action':None,'core_user':None},
    {'name':'2','action':None,'core_user':None},
    {'name':'3','action':None,'core_user':None},
@@ -14,6 +20,11 @@ a=[{'name':'1','action':None,'core_user':None},
    {'name':'8','action':None,'core_user':None},
    {'name':'9','action':None,'core_user':None},
    {'name':'10','action':None,'core_user':None}]
+
+import pandas as pd
+
+pd.DataFrame(a,columns=['Name','Action','Cre'])
+
 
 try:
     db.emp.remove({})
@@ -80,3 +91,22 @@ import pandas as pd
 x=[query['duration'],query['last_day'],query['quantity'],query['tweets_status'],query['tweets_user'],query['user_friends_status'],query['year']]
 
 df=pd.DataFrame(x,index=['duration','last_day','quantity','tweets_status','tweets_user','user_friends_status','year'])
+
+
+a=[{'ax':5,'bx':2,'sx':45},{'ax':3,'bx':3,'sx':4},{'ax':4,'bx':27,'sx':5},{'ax':4,'bx':3,'sx':4}]
+
+max(a)
+a[max(a)]
+
+a=[1,2,2,3,5]
+list(set(a))
+
+pd.DataFrame(a)
+
+y=pd.DataFrame(a)
+
+for i in range(len(y)):
+    print(y.iloc[i]['ax'])
+    
+
+len(y)

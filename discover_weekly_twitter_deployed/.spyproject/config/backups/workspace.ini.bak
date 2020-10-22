@@ -6,5 +6,5 @@ save_non_project_files = False
 
 [main]
 version = 0.2.0
-recent_files = ['..\\docker-compose.yml', '..\\PreProcess\\app\\celery.py', '..\\DataCollection\\app\\celery.py']
+recent_files = ['..\\DiscoverUsers\\app\\views.py', '..\\DiscoverContent\\app\\views.py', '..\\Objects\\tweet_objects.py', '..\\test2.py']
 

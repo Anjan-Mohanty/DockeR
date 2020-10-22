@@ -13,6 +13,7 @@ class User(object):
         self.day_added=None
         self.year_added=None
         self.cluster_number=0
+        self.bond_stats=None
         self.friends_id=[]
         self.edges=[]
         
@@ -24,6 +25,7 @@ class User(object):
         self.day_added=user['day_added']
         self.year_added=user['year_added']
         self.cluster_number=user['cluster_number']
+        self.bond_stats=user['bond_stats']
         self.friends_id=user['friends_id']
         self.edges=user['edges']
         
@@ -45,6 +47,7 @@ class User(object):
         
         self.day_added=user_json['created_day']
         self.year_added=user_json['created_year']
+        self.bond_stats=None
         
         mongo_app=connections.mongo()
         mongo_app.connect_to_mongo()
@@ -62,7 +65,7 @@ class User(object):
         user_dict['user']['name']=self.user['name']
         user_dict['friends_id']=self.friends_id
         user_dict['edges']=self.edges
-        
+        user_dict['bond_stats']=self.bond_stats
         user_dict['core_user']=self.core_user
         user_dict['activity']=self.activity
         user_dict['day_added']=self.day_added

@@ -1,7 +1,7 @@
 import streamlit as st
 import datetime
 import requests
-from Objects import connections
+from Objects import connections,tweet_objects
 import pandas as pd
 import time
 from Objects import user_objects
@@ -636,6 +636,15 @@ class cluster_community(object):
                 temp['Screen name']=user.user['screen_name']
                 temp['Activity']=user.activity
                 
+                temp['Tier 1']=user.bond_stats['tier1']['screen_name']
+                temp['Tier 1 interactions']=user.bond_stats['tier1']['interactions']
+                
+                temp['Tier 2']=user.bond_stats['tier2']['screen_name']
+                temp['Tier 2 interactions']=user.bond_stats['tier2']['interactions']
+                
+                temp['Tier 3']=user.bond_stats['tier3']['screen_name']
+                temp['Tier 3 interactions']=user.bond_stats['tier3']['interactions']
+                
                 cluster.append(temp)
             
             
@@ -643,11 +652,92 @@ class cluster_community(object):
             
             st.dataframe(df)
             
-
-
-
-
-
+class discover_content(object):
+    
+    def __init__(self):
+        
+        self.cluster_number=None
+        self.tier=None
+    
+    def extract_trends(self):
+        
+        st.write('Discover Content from the tweets, that have been tweeted this week by pressing the button below')
+        st.write('Please Cluster the community before this step, Atleast once before this step')
+        
+        if st.button('Discover Content'):
+            
+            with st.spinner('Discovering Content...'):
+                
+                session = requests.Session()
+                session.trust_env = False
+            
+                url="http://discovercontent:2020/"
+                payload={}
+            
+                report= session.post(url,json=payload)
+                
+                if(report.status_code==200):
+                    st.success('Discovered Content 😃')
+                else:
+                    st.success('Please try again 😢')
+                    
+    def get_details(self):
+        
+        label='Enter the Cluster number'
+        self.cluster_number=st.number_input(label,value=0)
+        
+        label='Select tire number'
+        options=[1,2,3]
+        self.tier=st.radio(label,options,index=0)
+    
+    def show_content(self):
+        
+        st.write('To view Discovered Content press the button below')
+        
+        if st.button('Show Content'):
+            
+           
+            with st.spinner('Preparing...'):
+                
+                tweets_t=tweet_objects.tweet_set()
+                
+                query={'$and':[{'tier':self.tier},{'cluster_number':self.cluster_number},{'discover':True}]}
+                tweets_t.get_tweets(query)
+                
+                if len(tweets_t.tweets)==0:
+                    
+                    st.write('Nothing to discover or the number of tweets is very less its fine no worries 😅😉😴')
+                    st.stop()
+                
+                def by_value(tweet):
+                    
+                    return(tweet.tweet['thread_number'])
+                
+                tweets_t.tweets.sort(key=by_value)
+                
+                thread_number=[tweet.tweet['thread_number'] for tweet in tweets_t.tweets]
+                
+                screen_name=[tweet.tweet['user']['screen_name'] for tweet in tweets_t.tweets]
+                
+                text=[tweet.tweet['text'] for tweet in tweets_t.tweets]
+                
+                def make_clickable(val):
+                    # target _blank to open new window
+                    return '<a target="_blank" href="{}">{}</a>'.format(val, val)
+                
+                tweet_url=[f"https://twitter.com/{tweet.tweet['user']['screen_name']}/status/{tweet.tweet['id']}" for tweet in tweets_t.tweets]
+                
+                favorite_count=[tweet.tweet['favorite_count'] for tweet in tweets_t.tweets]
+                retweet_count=[tweet.tweet['retweet_count'] for tweet in tweets_t.tweets]
+                created_at=[tweet.tweet['created_at'] for tweet in tweets_t.tweets]
+                
+                df_dict={'thread_number':thread_number,'screen_name':screen_name,'text':text,'tweet_url':tweet_url,'favorite_count':favorite_count,'retweet_count':retweet_count,'created_at':created_at}
+                
+                df=pd.DataFrame(df_dict)
+                
+                st.table(df)
+                
+                
 
 
 

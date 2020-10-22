@@ -1,6 +1,6 @@
 import streamlit as st
 import website as wb
-from micro_apps import home,auth,add_user,data_collector,discover_users,preprocessing,cluster_community
+from micro_apps import home,auth,add_user,data_collector,discover_users,preprocessing,cluster_community,discover_content
 
 def main():
     
@@ -13,6 +13,7 @@ def main():
     website.add_micro_app('Discover Users',discover_users.micro_app)
     website.add_micro_app('Pre Processing',preprocessing.micro_app)
     website.add_micro_app('Cluster Community',cluster_community.micro_app)
+    website.add_micro_app('Discover Content',discover_content.micro_app)
     
     website.run()
                 
