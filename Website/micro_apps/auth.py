@@ -15,3 +15,5 @@ def micro_app():
     auth_key.get_keys()
     
     auth_key.is_auth_added()
+    
+    auth_key.delete()

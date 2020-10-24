@@ -5,19 +5,7 @@ from Objects import connections,tweet_objects
 import pandas as pd
 import time
 from Objects import user_objects
-
-#masterobject
-###############################################################################
-class website(object):
-    pass
-###############################################################################
-
-
-
-
-
-#main objects
-##############################################################################
+import tweepy
 
 
 #data_collection object--------------------------------------------------------
@@ -76,10 +64,10 @@ class data_collection(object):
             self.query=reports[0]
             count=mongo_app.db.tweets.find({'$and':[{'downloaded_day_year':int(datetime.datetime.today().strftime('%j'))},{'downloaded_year':datetime.datetime.today().year}]}).count()
             
-            st.write(f"Scheduled hour is {self.query['scheduled_hour']}")
-            st.write(f"Live count of number of tweets downloaded : {count}")
-            st.write(f"The User whose friends are being collected {self.query['friends_user']['screen_name']}")
-            st.write(f"Today's day of year is {int(datetime.datetime.today().strftime('%j'))}")
+            st.write(f"Scheduled hour is :{self.query['scheduled_hour']}.")
+            st.write(f"Live count of number of **tweets downloaded** : {count}.")
+            st.write(f"The User whose friends are being collected '{self.query['friends_user']['screen_name']}'.")
+            st.write(f"Today's day of year is : {int(datetime.datetime.today().strftime('%j'))}.")
             
             x=[self.query['duration'],self.query['last_day'],self.query['quantity'],self.query['tweets_status'],self.query['tweets_user'],self.query['user_friends_status'],self.query['year']]
             
@@ -92,38 +80,6 @@ class data_collection(object):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class user_manager(object):
-    pass
-
-class get_insights(object):
-    pass
-###############################################################################
-
-
-
-
-
-#daughters of main objects
-###############################################################################
-
 #auth_keys object--------------------------------------------------------------
 class auth_keys(object):
     
@@ -133,6 +89,7 @@ class auth_keys(object):
         
     def get_keys(self):
         
+        self.key.app_name=str(st.text_input('Please Enter App name'))
         self.key.api_key=str(st.text_input('Please Enter API key'))
         self.key.api_secrete_key=str(st.text_input('Please Enter API secret key'))
         self.key.access_token=str(st.text_input('Please Enter Access token'))
@@ -140,7 +97,7 @@ class auth_keys(object):
 
     def is_correct(self):
         
-        if(self.key.api_key==None or self.key.api_key=='' or self.key.api_secrete_key==None or self.key.api_secrete_key=='' or self.key.access_token==None or self.key.access_token=='' or self.key.access_token_secret==None or self.key.access_token_secret==''):
+        if(self.key.app_name==None or self.key.app_name=='' or self.key.api_key==None or self.key.api_key=='' or self.key.api_secrete_key==None or self.key.api_secrete_key=='' or self.key.access_token==None or self.key.access_token=='' or self.key.access_token_secret==None or self.key.access_token_secret==''):
             return False
         else:
             return True
@@ -171,20 +128,55 @@ class auth_keys(object):
             repeated=self.is_repeated()
             
             if(repeated or not correct):
-                st.write('Please enter details properly')
+                st.write('Please enter details properly, probabably you are missing to fill something or are trying to add same key again, if nothing solves try deleting the existing api app and add new one')
                 st.stop()
             else:
-                
+            
                 key_json=self.key.make_json()
                 
                 mongo_app=connections.mongo()
                 mongo_app.connect_to_mongo()
                 
+                
+                #testing
+                api=self.key.connect_to_twitter_no_wait()
+                
+                try:
+                    user_id='Twitter'
+                    
+                    user=api.get_user(id=user_id)
+                
+                except tweepy.RateLimitError:
+                    
+                    st.write('Try after 15 mins as we have exceded twitter rate limit')
+                    st.stop()
+                    
+                except Exception as e:
+    
+                    if e.reason[:22]=='Failed to send request':
+                        st.write('No Internet 🥱')
+                        st.stop()
+    
+                    else:
+                        st.write('There may be some mistake in the keys entered 😭')
+                        st.stop()
+                
                 mongo_app.db.auth.insert(key_json)
                 st.write('**To Delete key, Use Mongo Compass.**')
                 msg='The Twitter API Key is Added, Now you can collect more Data efficiently'
                 st.success(msg)
-                
+    
+    def delete(self):
+        
+        st.write('---')
+        st.write('## Delete API APP keys')
+        
+        app_name=str(st.text_input('Enter API APP name'))
+        
+        mongo_app=connections.mongo()
+        mongo_app.connect_to_mongo()
+        
+        mongo_app.db.auth.remove({'app_name':app_name})
 
 #add_user object---------------------------------------------------------------
 class add_user(object):
@@ -239,6 +231,23 @@ class add_user(object):
                 st.stop()
             else:
                 
+                try:
+                    keys=connections.twitter_api_keys()
+                    keys.get_existing_keys(no_of_keys=1)
+        
+                    api=keys.keys[0].connect_to_twitter()
+                    
+                    new_user=api.get_user(id=self.screen_name)
+                except Exception as e:
+                    
+                    if e.reason[:22]=='Failed to send request':
+                        st.write('No Internet 😴')
+                        st.stop()
+                    
+                    if e.api_code==50:
+                        st.write('User not found, please check the name properly 🥱')
+                        st.stop()
+                        
                 user=self.make_json()
                 
                 mongo_app=connections.mongo()
@@ -303,7 +312,31 @@ class add_user(object):
                 
                 report= session.post(url,json=user_payload)
                     
+    def delete_user(self):
+        
+        st.write('---')
+        st.write('## Delete User')
+        st.write('To delete a user, Please enter the details below')
+        
+        label='Enter screen_name of user'
+        screen_name=str(st.text_input(label))
+        
+        mongo_app=connections.mongo()
+        mongo_app.connect_to_mongo()
+        
+        if st.button('Delete'):
             
+            
+            if mongo_app.db.community.find({'user.screen_name':screen_name}).count()==0:
+            
+                st.write(f'@{screen_name} is not their 😏')
+                st.stop()
+        
+            else:
+            
+                mongo_app.db.community.remove({'user.screen_name':screen_name})
+                mongo_app.db.tweets.remove({'user.screen_name':screen_name})
+                st.write(f'@{screen_name} is deleted')
 
 #discover_users object---------------------------------------------------------------
 class discover_users(object):
@@ -335,10 +368,6 @@ class discover_users(object):
         
         mongo_app=connections.mongo()
         mongo_app.connect_to_mongo()
-        
-        #query={'created_day':int(datetime.datetime.now().strftime('%j')),
-        #       'created_year':int(datetime.datetime.now().year),
-        #       'made_user':False}
         
         query={'$and':[{'created_day':int(datetime.datetime.now().strftime('%j'))},{'created_year':int(datetime.datetime.now().year)},{'made_user':False}]}
         
@@ -398,6 +427,9 @@ class discover_users(object):
     
     def show_preview(self):
         
+        st.write('---')
+        st.write('## Show preview')
+        st.write('See what all actions have been taken on the above people.')
         mongo_app=connections.mongo()
         mongo_app.connect_to_mongo()
         
@@ -410,6 +442,9 @@ class discover_users(object):
     
     def finilize(self):
         
+        st.write('---')
+        st.write('## Finilize Users')
+        st.write('Finilize the actions taken above.')
         if st.button('Finilize Users'):
             
             today=datetime.date.today()
@@ -547,6 +582,9 @@ class preprocess(object):
         
     def process_data(self):
         
+        st.write('---')
+        st.write('## Start Preprocessing')
+        
         st.write('**The Pre Process step below is done using parallel processing**')
         st.write('**PLEASE DO THIS STEP ONLY AFTER COLLECTING ALL THE TWEETS**')
         
@@ -636,14 +674,27 @@ class cluster_community(object):
                 temp['Screen name']=user.user['screen_name']
                 temp['Activity']=user.activity
                 
-                temp['Tier 1']=user.bond_stats['tier1']['screen_name']
-                temp['Tier 1 interactions']=user.bond_stats['tier1']['interactions']
+                if user.bond_stats==None:
+                    
+                    temp['Tier 1']=''
+                    temp['Tier 1 interactions']=0
+                    
+                    temp['Tier 2']=''
+                    temp['Tier 2 interactions']=0
+                    
+                    temp['Tier 3']=''
+                    temp['Tier 3 interactions']=0
+                    
+                else:
+                    temp['Tier 1']=user.bond_stats['tier1']['screen_name']
+                    temp['Tier 1 interactions']=user.bond_stats['tier1']['interactions']
                 
-                temp['Tier 2']=user.bond_stats['tier2']['screen_name']
-                temp['Tier 2 interactions']=user.bond_stats['tier2']['interactions']
                 
-                temp['Tier 3']=user.bond_stats['tier3']['screen_name']
-                temp['Tier 3 interactions']=user.bond_stats['tier3']['interactions']
+                    temp['Tier 2']=user.bond_stats['tier2']['screen_name']
+                    temp['Tier 2 interactions']=user.bond_stats['tier2']['interactions']
+                
+                    temp['Tier 3']=user.bond_stats['tier3']['screen_name']
+                    temp['Tier 3 interactions']=user.bond_stats['tier3']['interactions']
                 
                 cluster.append(temp)
             

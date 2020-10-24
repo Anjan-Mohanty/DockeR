@@ -1,5 +1,5 @@
 from Objects import connections
-
+import streamlit as st
 
 
 
@@ -95,6 +95,19 @@ class user_set(object):
         keys.get_existing_keys(no_of_keys=1)
         
         api=keys.keys[0].connect_to_twitter()
+        
+        try:
+
+            new_user=api.get_user(id=users[0]['screen_name'])
+        except Exception as e:
+                    
+            if e.reason[:22]=='Failed to send request':
+                st.write('No Internet 😴')
+                st.stop()
+                    
+            if e.api_code==50:
+                st.write('User not found, please check the name properly 🥱')
+                st.stop()
         
         
         for member in users:

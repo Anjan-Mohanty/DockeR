@@ -20,3 +20,5 @@ def micro_app():
     st.write('---')
     au.make_added_users()
     
+    au.delete_user()
+    

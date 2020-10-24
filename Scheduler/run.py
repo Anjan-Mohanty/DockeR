@@ -50,6 +50,16 @@ def main():
                 url="http://datacollection:5010/user_friends"
                 
                 report= session.post(url,json=user_payload)
+                
+                today=datetime.datetime.now()
+                month_back=today-datetime.timedelta(days=30)
+                
+                month_back_day=month_back.strftime('%j')
+                month_back_year=month_back.year
+                
+                mongo_app.db.tweets.remove({'created_year':month_back_year-1})
+                
+                mongo_app.db.tweets.remove({'$and':[{'created_year':month_back_year},{'created_day':{'$lt':month_back_day}}]})
             
             elif iteration!=0:
                 

@@ -19,13 +19,15 @@ class twitter_api_key(object):
     
     def __init__(self):
         
+        self.app_name=None
         self.api_key=None
         self.api_secrete_key=None
         self.access_token=None
         self.access_token_secret=None
         
-    def make_key(self,api_key,api_secrete_key,access_token,access_token_secret):
+    def make_key(self,app_name,api_key,api_secrete_key,access_token,access_token_secret):
         
+        self.app_name=app_name
         self.api_key=api_key
         self.api_secrete_key=api_secrete_key
         self.access_token=access_token
@@ -34,6 +36,7 @@ class twitter_api_key(object):
     def make_json(self):
         
         key={}
+        key['app_name']=self.app_name
         key['api_key']=self.api_key
         key['api_secrete_key']=self.api_secrete_key
         key['access_token']=self.access_token
@@ -76,7 +79,7 @@ class twitter_api_keys(object):
             self.key_ids.append(key['_id'])
             
             key_object=twitter_api_key()
-            key_object.make_key(key['api_key'],key['api_secrete_key'],key['access_token'],key['access_token_secret'])
+            key_object.make_key(key['app_name'],key['api_key'],key['api_secrete_key'],key['access_token'],key['access_token_secret'])
             
             self.keys.append(key_object)
             

@@ -51,8 +51,12 @@ def tweets_celery_collector(self,query):
         try:
             tmpTweets = api.user_timeline(user.user['screen_name'])
         except tweepy.TweepError as e:
-            print('------ PRIVATE -----',i,user.user['screen_name'],j)
-            print(e)
+            
+            try:
+                if e.reason[0:22]=='Failed to send request':
+                    return('No Network')
+            except:
+                print('Skipping'+user.user['screen_name'])
     
         print(i,user.user['screen_name'],j)
         for tweet in tmpTweets:
@@ -70,8 +74,12 @@ def tweets_celery_collector(self,query):
         
                 try:
                     tmpTweets = api.user_timeline(user.user['screen_name'], max_id = tmpTweets[-1].id)
-                except tweepy.TweepError:
-                    print('-----------',i,user.user['screen_name'],j)
+                except tweepy.TweepError as e:
+                    try:
+                        if e.reason[0:22]=='Failed to send request':
+                            return('No Network')
+                    except:
+                        print('Skipping'+user.user['screen_name'])
             
                 print(i,user.user['screen_name'],j)
                 for tweet in tmpTweets:
@@ -210,9 +218,14 @@ def user_friends_celery_collector(self,query):
                 print(88)
             
             except Exception as e:
-                print('skipping '+users.users[user_no].user['screen_name'])
-                print(e)
-                user_no+=1
+                
+                try:
+                    if e.reason[0:22]=='Failed to send request':
+                        return('No Network')
+                except:
+                    print('skipping '+users.users[user_no].user['screen_name'])
+                    print(e)
+                    user_no+=1
                 
         #set status in db
         mongo_app.db.reports.update({'report':'data_collection'},{'$set':{f"user_friends_status.{query['source']}":'collected'}})
