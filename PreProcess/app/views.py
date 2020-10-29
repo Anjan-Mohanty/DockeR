@@ -5,6 +5,7 @@ from app import tasks
 from Objects import connections
 from Objects import user_objects
 import time
+import random
 
 @app.route('/',methods=['POST','GET'])
 def index():
@@ -32,7 +33,9 @@ def index():
         
         
         result=tasks.process.delay(query)
-        time.sleep(2)
+        t=random.uniform(0,2)
+        print(t)#only for debug purpose 
+        time.sleep(t)
         results.append(result)
     
     success_count=0

@@ -4,6 +4,7 @@ from flask import request
 from app import tasks
 from Objects import connections
 import time
+import random
 
 @app.route('/',methods=['POST','GET'])
 def index():
@@ -25,7 +26,9 @@ def index():
         query={'cluster_number':cluster_number}
         
         result=tasks.discover.delay(query)
-        time.sleep(5)
+        t=random.uniform(0,3)
+        print(t)#only for debug purpose 
+        time.sleep(t)
         
         results.append(result)
     
