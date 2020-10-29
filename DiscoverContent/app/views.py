@@ -3,6 +3,7 @@ from app import app as app
 from flask import request
 from app import tasks
 from Objects import connections
+import time
 
 @app.route('/',methods=['POST','GET'])
 def index():
@@ -24,6 +25,7 @@ def index():
         query={'cluster_number':cluster_number}
         
         result=tasks.discover.delay(query)
+        time.sleep(5)
         
         results.append(result)
     

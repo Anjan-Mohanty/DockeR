@@ -752,8 +752,35 @@ class discover_content(object):
                 
                 tweets_t=tweet_objects.tweet_set()
                 
-                query={'$and':[{'tier':self.tier},{'cluster_number':self.cluster_number},{'discover':True}]}
-                tweets_t.get_tweets(query)
+                #setting Dates
+                today=datetime.date.today()
+                seven_days_back=today - datetime.timedelta(days=7)
+                
+                payload={'$and':[{'tier':self.tier},{'cluster_number':self.cluster_number},{'discover':True}]}
+                
+                if seven_days_back.year==today.year :
+            
+                    query={'$and':[payload,
+                                   {'$and':[{'created_day':{'$gt':int(seven_days_back.strftime('%j'))}},{'created_year':seven_days_back.year}]},
+                                   {'$and':[{'created_day':{'$lte':int(today.strftime('%j'))}},{'created_year':today.year}]}]}
+            
+                    tweets_t.get_tweets(query)
+
+                else:
+                    
+                    query={'$and':[payload,
+                                   {'$and':[{'created_day':{'$gt':int(seven_days_back.strftime('%j'))}},{'created_year':seven_days_back.year}]}]}
+                    
+                    tweets_t.get_tweets(query)
+            
+                    query={'$and':[payload,
+                                   {'$and':[{'created_day':{'$lte':int(today.strftime('%j'))}},{'created_year':today.year}]}]}
+            
+            
+                    tweets_t.get_tweets(query)
+                
+                
+                
                 
                 if len(tweets_t.tweets)==0:
                     

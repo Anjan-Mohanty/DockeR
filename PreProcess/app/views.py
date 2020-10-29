@@ -32,6 +32,7 @@ def index():
         
         
         result=tasks.process.delay(query)
+        time.sleep(2)
         results.append(result)
     
     success_count=0

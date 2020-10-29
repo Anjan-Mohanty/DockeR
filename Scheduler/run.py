@@ -12,7 +12,7 @@ def main():
     
     while True:
         
-        time.sleep(60*60)
+        time.sleep(60*30)
         
         hour=int(datetime.datetime.now().hour)
         day=int(datetime.datetime.now().strftime('%j'))
