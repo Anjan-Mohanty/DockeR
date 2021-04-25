@@ -97,3 +97,11 @@ Here we can analyze the data
 
 - Adding multiple user support to really make use of micro services architecture
 - Adding login, authentication
+
+### Usage:
+
+- Install Dockers
+- Download this project
+- cd to this project
+- Then execute `docker-compose up`
+- Open Browser and go to [localhost:80](http://localhost:80/)
