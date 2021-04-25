@@ -215,6 +215,7 @@ def user_friends_celery_collector(self,query):
                 
                 key_no=(key_no+1)%(len(api_keys.keys))
                 api=api_keys.keys[key_no].connect_to_twitter_no_wait()
+                print(key_no)
                 print(88)
             
             except Exception as e:

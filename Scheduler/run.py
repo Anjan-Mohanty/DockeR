@@ -14,6 +14,8 @@ def main():
         
         time.sleep(60*30)
         
+        
+        
         hour=int(datetime.datetime.now().hour)
         day=int(datetime.datetime.now().strftime('%j'))
         
